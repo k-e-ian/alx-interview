@@ -8,27 +8,27 @@ def canUnlockAll(boxes):
     '''
     method that determines if all the boxes can be opened.
     '''
-    # Initialize variables
+    # get the number of boxes
+    n = len(boxes)
 
-    # Set of keys that have been found
-    found_keys = set([0])
+    # initialize an array to mark if a box has been visited or not
+    visited = [False] * n
 
-    # Stack of boxes to be opened
-    boxes_to_open = [0]
+    # mark the first box as visited
+    visited[0] = True
 
-    # Continue opening boxes as long as there are boxes to be opened
-    while boxes_to_open:
-        # Get the keys from the current box
-        box_to_open = boxes_to_open.pop()
-        keys = boxes[box_to_open]
+    # initialize a list to keep track of keys found in boxes
+    found_keys = [0]
 
-        # Iterate through the keys
-        for key in keys:
-            # Check if the key has not been found
-            if key not in found_keys:
-                # Add the key to the set of found keys
-                found_keys.add(key)
-                # Add the box to the stack of boxes to be opened
-                boxes_to_open.append(key)
-    # Check if all boxes were opened
-    return len(found_keys) == len(boxes)
+    # loop through the list of found keys and mark all the boxes that can be
+    # opened by each key as visited
+    while found_keys:
+        box_idx = found_keys.pop()
+        boxes_to_open = boxes[box_idx]
+        for key in boxes_to_open:
+            if key < n and not visited[key]:
+                visited[key] = True
+                found_keys.append(key)
+
+    # check if all boxes have been visited
+    return all(visited)

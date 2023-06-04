@@ -1,32 +1,59 @@
-#!/usr/bin/node
+#!/usr/bin/env node
+
 const request = require('request');
 
 const movieId = process.argv[2];
+
+if (!movieId) {
+  console.error('Movie ID is required.');
+  process.exit(1);
+}
+
 const apiUrl = `https://swapi.dev/api/films/${movieId}/`;
 
 request(apiUrl, (error, response, body) => {
-  if (!error && response.statusCode === 200) {
-    const movie = JSON.parse(body);
-    const characterUrls = movie.characters;
+  if (error) {
+    console.error('Error:', error);
+    process.exit(1);
+  }
 
-    const fetchCharacter = (characterUrl) => {
-      request(characterUrl, (error, response, body) => {
-        if (!error && response.statusCode === 200) {
-          const character = JSON.parse(body);
-          console.log(character.name);
-        }
-      });
-    };
+  if (response.statusCode !== 200) {
+    console.error('Invalid response:', response.statusCode);
+    process.exit(1);
+  }
 
-    const fetchAllCharacters = async (urls) => {
-      for (const characterUrl of urls) {
-        await new Promise((resolve) => {
-          fetchCharacter(characterUrl);
-          resolve();
+  const movie = JSON.parse(body);
+  const characters = movie.characters;
+  const characterNames = [];
+
+  if (!characters || characters.length === 0) {
+    console.log('No characters found for this movie.');
+    process.exit(0);
+  }
+
+  let charactersFetched = 0;
+
+  characters.forEach((characterUrl, index) => {
+    request(characterUrl, (error, response, body) => {
+      if (error) {
+        console.error('Error:', error);
+        return;
+      }
+
+      if (response.statusCode !== 200) {
+        console.error('Invalid response:', response.statusCode);
+        return;
+      }
+
+      const character = JSON.parse(body);
+      characterNames[index] = character.name;
+      charactersFetched++;
+
+      if (charactersFetched === characters.length) {
+        characterNames.forEach((name) => {
+          console.log(name);
         });
       }
-    };
-
-    fetchAllCharacters(characterUrls);
-  }
+    });
+  });
 });

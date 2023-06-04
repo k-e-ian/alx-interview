@@ -18,18 +18,13 @@ request(apiUrl, (error, response, body) => {
       });
     };
 
-    const fetchAllCharacters = (urls) => {
-      if (urls.length === 0) {
-        return;
+    const fetchAllCharacters = async (urls) => {
+      for (const characterUrl of urls) {
+        await new Promise((resolve) => {
+          fetchCharacter(characterUrl);
+          resolve();
+        });
       }
-
-      const characterUrl = urls.shift();
-      fetchCharacter(characterUrl);
-
-      // Fetch the next character after a short delay to avoid API rate limits
-      setTimeout(() => {
-        fetchAllCharacters(urls);
-      }, 100);
     };
 
     fetchAllCharacters(characterUrls);

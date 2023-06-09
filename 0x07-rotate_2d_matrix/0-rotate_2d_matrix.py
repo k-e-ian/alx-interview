@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/python3.8
 '''
 File: 0-rotate_2d_matrix.py
 '''
